@@ -128,6 +128,8 @@ function multiObj_CBM(jj, DFA_kappa, CFR_kappa, CFR_rho, COBRA_path, GEM_path, m
   changeCobraSolver('gurobi')
   % INPUT files
   % Load metabolic network model
+  cd('../sriram-lab/scooti/SCOOTI/SCOOTI/uptodate_SCOOTI/SCOOTI/metabolicModel')
+  GEM_path = './GEMs/COMPASS_RECON1.mat' 
   model = load(GEM_path);
   fn = fieldnames(model);
   model = getfield(model, fn{1});
