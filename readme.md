@@ -4,6 +4,7 @@
 
 - [Overview](#overview)
 - [System Requirements](#system-requirements)
+- [Preparation of Unconstrained Models](#preparation-of-constrained-models)
 - [Omic-based Constrained Models](#omic-based-constrained-models)
 - [Inference of Metabolic Objectives](#identify-metabolic-objectives)
 - [Metabolic Objective Analysis](#metabolic-objective-analysis)
@@ -54,6 +55,45 @@ seaborn
 ```
 gurobi
 cobratoolbox
+```
+
+# Installation
+
+To use SCOOTI, first install it using pip:
+
+```
+   (venv) $ pip install git+https://github.com/dwgoblue/SCOOTI.git --upgrade
+```
+
+> Cobratoolbox is required for SCOOTI to model contrained and unconstrained models. The instruction of cobratoolbox and its installation can be found in the [OpenCobra](https://opencobra.github.io/cobratoolbox/stable/installation.html). In addition, optimization solvers are required for cobratoolbox. We recommend Gurobi solver for the linear version of iMAT and MOOMIN, and CPLEX 20.0.1 for COMPASS. 
+
+
+
+# Preparation of Unconstrained Models
+
+Unconstrained models optimized the demand reactions of single metabolites across different compartments. For example, ``atp[c]+atp[n]+atp[m]-->`` is one of the single objective functions. Optimizing this function is equivalent to maximizing the production of ATP. The bash script below shows the example to generate 52 unconstrained models which optimize 52 different single metabolites recorded in the csv file.
+
+
+```
+#!/bin/bash
+# input settings
+# path to access your matlab-version cobratoolbox
+COBRA_path='./cobratoolbox/'
+# path to access the metabolic model
+GEM_path='./GEMs/Shen2019.mat'
+# name of the model
+model_name='Recon1'
+# leave it blank if no user-defined objectives
+obj_candidate_list_file='./obj52_metabolites_recon1.csv'
+
+# path to access the significant genes data
+data_dir='./sigGenes/prolif_qui/'
+prefix_name='model' # name of the experiment pls set to 'model' for unconstraint models
+medium='DMEMF12' # KSOM for embryos and DMEMF12 for cell culture
+save_root_path='./fluxPrediction/unconstrained_models/pfba/' # path to save predicted fluxes
+
+# start the simulation of flux predictions
+matlab -nosplash -noFigureWindows -r "multiObj_CBM(~, $COBRA_path, $GEM_path, $model_name, $obj_candidate_list_file, $data_dir, $prefix_name, $medium, $save_root_path)"
 ```
 
 # Omics-based Constrained Models
