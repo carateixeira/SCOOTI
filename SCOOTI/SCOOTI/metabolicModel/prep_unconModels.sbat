@@ -1,0 +1,19 @@
+#!/bin/bash
+# input settings
+# path to access your matlab-version cobratoolbox
+COBRA_path='/mnt/c/Users/carat/cobratoolbox/'
+# path to access the metabolic model
+GEM_path='./GEMs/COMPASS_RECON1.mat'
+# name of the model
+model_name='Recon1'
+# leave it blank if no user-defined objectives
+obj_candidate_list_file='./obj52_metabolites_recon1.csv'
+
+# path to access the significant genes data
+data_dir='./sigGenes/test/unconstrained_models/'
+prefix_name='model' # name of the experiment pls set to 'model' for unconstraint models
+medium='DMEMF12' # KSOM for embryos and DMEMF12 for cell culture
+save_root_path='./fluxPrediction/test/unconstrained_models/' # path to save predicted fluxes
+
+# start the simulation of flux predictions
+/mnt/c/Program\ Files/MATLAB/R2024a/bin/matlab.exe -nosplash -noFigureWindows -r "multiObj_CBM([], [], [], [], '$COBRA_path', '$GEM_path', '$model_name', '$obj_candidate_list_file', [], [], [], [], [], [], [], [], [],  '$data_dir', '$prefix_name', '$medium', [], [], [], [], '$save_root_path', [], [], [], [], [], [], [])"

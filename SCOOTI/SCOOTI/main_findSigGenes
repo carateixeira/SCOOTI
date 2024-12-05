@@ -1,0 +1,13 @@
+from findSigGenes import findSigGenes
+import pandas as pd # type: ignore
+
+path = './SCOOTI/SCOOTI/uptodate_SCOOTI/SCOOTI/test_data/'
+fr = findSigGenes(path)
+
+# if it's 10x
+fr.read_scRNAseq()
+
+genedf = fr.get_genedf(transpose=False)
+ref_cells = pd.Series(genedf.index).apply(lambda x: x.split('_')[0]).str.contains('control').to_numpy()
+exp_cells = pd.Series(genedf.index).apply(lambda x: x.split('_')[0]).to_numpy()=='2cell'
+upgene, dwgene = fr.get_transition_genes(ref_cells, exp_cells, split_str='_', method='AVGSTD', save_files=True)
