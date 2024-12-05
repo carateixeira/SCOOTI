@@ -1,4 +1,4 @@
-function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_path, out_name, upsheet, dwsheet, ctrl, kappa, rho, medium, genekoflag, rxnkoflag, media_perturbation, FVAflag, model_name, CFR_model, extra_weight, algorithm)
+function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_path, out_name, upsheet, dwsheet, ctrl, kappa, rho, medium, genekoflag, rxnkoflag, media_perturbation, FSflag, model_name, CFR_model, extra_weight, algorithm)
 
   sample_name = sprintf('%s%s', upsheet, dwsheet);
 
@@ -85,8 +85,12 @@ function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_pa
 %% convert structure to json files
   encodedJSON = jsonencode(metadata);
   JSONFILE_name= sprintf('%s_metadata.json', excelname);
+  [filepath, ~, ~] = fileparts(JSONFILE_name);
+  if ~isempty(filepath) && ~isfolder(filepath)
+    error('The directory "%s" does not exist.', filepath);
+  end
   fid = fopen(JSONFILE_name,'w');
-  fprintf(fid, encodedJSON);
+  fprintf(fid, '%s', encodedJSON);
   fclose('all')
   
   % Separate values and labels
@@ -245,7 +249,7 @@ function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_pa
     
     end
 
-    if FVAflag==1,
+    if FSflag==1,
       % flux sampling
       %achr_name = sprintf('[%s]%s', file_prefix, out_name);
       %%achr_name = 'test'
@@ -416,7 +420,7 @@ function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_pa
         end % end for MOOMIN
       else, % CFR
         % with constraint
-        [uncon_flux, fluxstate, grate_naive, geneko_flux, rxnko_growthrate, solverobj_naive, grate_min, grate_max, model_out]=constrain_flux_regulation(model, uplist, dwlist, kappa, rho, 1E-3, 0, genekoflag, rxnkoflag, [], [], FVAflag, recon_model, extra_weight);
+        [uncon_flux, fluxstate, grate_naive, geneko_flux, rxnko_growthrate, solverobj_naive, model_out]=constrain_flux_regulation(model, uplist, dwlist, kappa, rho, 1E-3, 0, genekoflag, rxnkoflag, [], [], recon_model, extra_weight);
 
         % save context-specific models
         %if length(CFR_model)==0,
@@ -490,19 +494,6 @@ function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_pa
         end
         % end if genekoflag
         
-        if FVAflag,
-          excelsheet = 'FVA';
-          rxns = model.rxns;
-          rxns{end+1, 1} = 'WT';
-          maxrate = grate_max;
-          maxrate(end+1, 1) = grate_naive;
-          minrate = grate_min;
-          minrate(end+1, 1) = grate_naive;
-          fva_res = table(rxns, maxrate, minrate);
-          disp(sprintf('%s %s', 'The CFR result has been saved in', excelname));
-          tmp_filename = sprintf('%s_%s.csv', excelname, excelsheet)
-          writetable(fva_res, tmp_filename);
-        end
         %if rxnkoflag,
         %  excelsheet = 'CFR-rxnDel';
         %  rxns = model.rxns;
@@ -557,7 +548,7 @@ function CFRinterface(model_path, pfba, obj, obj_type, obj_c, root_path, data_pa
         %end
         % end if rxnkoflag
       end % end if INIT or iMAT (CFR)
-    end % end if FVA sampling
+    end % end if sampling
   end
   % end if run simulation for CFR
   
